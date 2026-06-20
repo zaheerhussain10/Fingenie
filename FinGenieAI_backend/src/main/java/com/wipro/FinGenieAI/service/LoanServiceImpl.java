@@ -1,6 +1,7 @@
 package com.wipro.FinGenieAI.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +30,19 @@ public class LoanServiceImpl implements LoanService {
     private AccountRepository accountRepository;
 
     // ✅ APPLY LOAN
+   
     @Override
     public LoanDTO applyLoan(LoanDTO dto) {
 
-        // ✅ 1. Get account
         Account account = accountRepository.findById(dto.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
-        // ✅ 2. Map
         Loan loan = LoanMapper.toEntity(dto);
+
         loan.setAccount(account);
         loan.setAppliedDate(LocalDateTime.now());
 
-        // ✅ 3. Set interest & tenure (🔥 HERE)
+        // ✅ Interest & tenure
         switch (dto.getLoanType()) {
             case HOME_LOAN:
                 loan.setInterestRate(7.2);
@@ -64,19 +65,14 @@ public class LoanServiceImpl implements LoanService {
                 break;
         }
 
-        // ✅ 4. Eligibility check
-        if (account.getBalance() >= (dto.getAmount() * 0.2)) {
-            loan.setStatus(LoanStatus.APPROVED);
-            loan.setApprovedDate(LocalDateTime.now());
-        } else {
-            loan.setStatus(LoanStatus.REJECTED);
-        }
+        // ✅ IMPORTANT FIX
+        loan.setStatus(LoanStatus.PENDING);
 
-        // ✅ 5. Save
         Loan saved = loanRepository.save(loan);
 
         return LoanMapper.toDTO(saved);
     }
+   
 
 
     // ✅ GET LOAN BY ID
@@ -93,4 +89,27 @@ public class LoanServiceImpl implements LoanService {
 
         return LoanMapper.toDTO(loan);
     }
+    public void updateStatus(Long id, String status) {
+
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        LoanStatus loanStatus = LoanStatus.valueOf(status); // ✅ convert
+
+        loan.setStatus(loanStatus);
+
+        loanRepository.save(loan);
+    }
+    @Override
+    public List<LoanDTO> getAllLoans() {
+
+        List<Loan> loans = loanRepository.findAll();
+
+        return loans.stream()
+                .map(LoanMapper::toDTO)
+                .toList();
+    }
+    
+ 
+
 }

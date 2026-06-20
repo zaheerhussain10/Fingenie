@@ -107,4 +107,13 @@ public class AccountServiceImpl implements AccountService {
                 .map(AccountMapper::toDTO)
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<AccountDTO> getAllAccounts() {
+
+        List<Account> accounts = accountRepository.findAll();
+
+        return accounts.stream()
+                .map(AccountMapper::toDTO)
+                .toList();
+    }
 }

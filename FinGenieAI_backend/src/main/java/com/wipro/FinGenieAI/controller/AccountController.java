@@ -40,5 +40,10 @@ public class AccountController {
     @GetMapping("/my")
     public List<AccountDTO> getMyAccounts() {
         return accountService.getMyAccounts();
+        
+    }
+    @GetMapping
+    public List<AccountDTO> getAllAccounts() {
+        return accountService.getAllAccounts();
     }
 }

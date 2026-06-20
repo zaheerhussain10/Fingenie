@@ -5,10 +5,7 @@ import com.wipro.FinGenieAI.enums.LoanType;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -27,10 +24,9 @@ public class LoanDTO {
 
     private Double interestRate;
 
-    @Min(value = 1, message = "Tenure must be at least 1")
     private Integer tenure;
 
-    private LoanStatus status; // system controlled
+    private LoanStatus status;
 
     @NotNull(message = "Loan type is required")
     private LoanType loanType;

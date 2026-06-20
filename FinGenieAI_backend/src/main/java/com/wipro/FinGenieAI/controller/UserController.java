@@ -1,5 +1,8 @@
 package com.wipro.FinGenieAI.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -56,7 +59,7 @@ public class UserController {
 
     // ✅ Login (DB based ✅)
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public Map<String, Object> login(@RequestBody LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -65,6 +68,23 @@ public class UserController {
             throw new RuntimeException("Invalid password");
         }
 
-        return jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail());
+
+        // ✅ get first role from set
+        String role = user.getRoles()
+                .stream()
+                .findFirst()
+                .map(r -> r.getRoleName().name())
+                .orElse("USER"); // fallback
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("role", role);
+        response.put("userId", user.getId());
+
+        return response;
     }
+   
+  
+
 }
